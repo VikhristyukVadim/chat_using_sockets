@@ -15,6 +15,10 @@ command = PostCommands()
 
 
 class UserEntity:
+    """
+    user entity class
+    """
+
     def __init__(self, name, socket_address, object_socket):
         self.name = name,
         self.socket_address = socket_address,
@@ -22,24 +26,47 @@ class UserEntity:
 
 
 class RoomEntity:
+    """
+    room entity class
+    """
+
     def __init__(self, name):
         self.name = name
         self.guests = []
 
     def addition_user(self, user):
+        """
+        Adding a new user
+        :param user: user login
+        """
         self.guests.append(user)
 
     def removing_user(self, user):
+        """
+        remove user
+        :param user: user login
+        """
         self.guests.remove(user)
 
     def change_room_name(self, new_name):
+        """
+        new name for the room
+        """
         self.name = new_name
 
 
 def user_logining(listened_socket):
+    """
+    login
+    :param listened_socket: user socket
+    :return:
+    """
     data = listened_socket.recv(2048)
     logining_data = re.search(r'(.*)::(.*)\s\s(.*)', data.decode('utf-8'))
-    if logining_data and logining_data.group(2) and logining_data.group(3):
+
+    check = user_checking(logining_data.group(2), logining_data.group(3))
+
+    if logining_data and check:
         if check_user_in(logining_data.group(2), logining_data.group(3)):
             return str(logining_data.group(2))
         else:
@@ -49,6 +76,10 @@ def user_logining(listened_socket):
 
 
 class Server(socket.socket):
+    """
+    server socket class
+    """
+
     def __init__(self):
         super(Server, self).__init__(socket.AF_INET, socket.SOCK_STREAM)
         print('Server is running, please, press ctrl+c to stop')
@@ -57,12 +88,20 @@ class Server(socket.socket):
         self.inviting = None
 
     def set_up(self):
+        """
+        socket connection
+        """
         self.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.bind(('', 55555))
         self.listen(10)
         self.accept_sockets()
 
     def check_for_presence_in_the_room(self, user):
+        """
+        checking if a user is in the room
+        :param user: str
+        :return: room
+        """
         for room in self.rooms:
             for guest in room.guests:
                 if user == "".join(guest.name):
@@ -71,11 +110,21 @@ class Server(socket.socket):
                     pass
 
     def find_user_by_name(self, user_login):
+        """
+        checking if a user is in the user list
+        :param user_login: str
+        :return: user
+        """
         for user in self.users:
             if user_login == "".join(user.name):
                 return user
 
     def send_data(self, data, message_author):
+        """
+        sending information to the client
+        :param data: sending data
+        :param message_author: message author
+        """
         try:
             room_guests_list = self.check_for_presence_in_the_room(message_author)
             if room_guests_list and type(room_guests_list.guests) is list:
@@ -88,6 +137,11 @@ class Server(socket.socket):
             print(err)
 
     def login_error_data(self, data, user_socket):
+        """
+        connection error handling
+        :param data: str
+        :param user_socket: socket
+        """
         user_socket.send(data.encode('utf-8'))
 
         print(f"Client {user_socket.getpeername()[1]} removed")
@@ -96,26 +150,39 @@ class Server(socket.socket):
         self.accept_sockets()
 
     def delete_log_out_user(self, listened_socket):
+        """
+        remove a logged out user from the list
+        :param listened_socket: socket
+        """
         for key, i in enumerate(self.users):
             if i.object_socket == listened_socket:
                 del self.users[key]
 
     def listen_socket(self, listened_socket=None):
+        """
+        listening to clients
+        :param listened_socket: socket
+        """
         while True:
             try:
+                # get the date and time to identify the message
                 sending_date = f'{date_now.now().strftime("%d-%m-%Y")}'
                 sending_time = f' [{date_now.now().strftime("%H:%M:%S") + "]"}'
 
+                # listening on a socket
                 data = listened_socket.recv(2048)
 
                 if not data:
+                    # checking if the client has crashed
                     print(f"Client {listened_socket.getpeername()[1]} removed")
                     self.delete_log_out_user(listened_socket)
                     listened_socket.close()
                     break
 
+                # information decoding
                 sending_data = data.decode("utf-8")
 
+                # split the string
                 res_data = re.search(r'(.*)::(.*)::(.*)::(.*)', sending_data) or re.search(r'(.*)::(.*)::(.*)',
                                                                                            sending_data)
                 if res_data:
@@ -123,11 +190,8 @@ class Server(socket.socket):
                     user_command = res_data.group(2)
                     user_command_value = res_data.group(3)
 
-                    print("==========", user_login, "|", user_command, "|", user_command_value)
-
                     if user_command == "MESSAGE":
                         if user_command_value:
-                            print('user_command_value', user_command_value)
                             presence = self.check_for_presence_in_the_room(user_login)
                             room_name = f'{colored(" send to the chat", "yellow", attrs=["dark"])}' \
                                         f' {"(" + colored(presence.name, "green") + "): "}' if presence is not None else " send: "
@@ -141,6 +205,7 @@ class Server(socket.socket):
                             self.send_data(sending_data, user_login)
                         else:
                             pass
+
                     elif user_command == "PM":
                         res_data = re.search(r'(.*)::(.*)::(.*)::(.*)', sending_data)
 
@@ -211,7 +276,6 @@ class Server(socket.socket):
                                         new_user = self.find_user_by_name(user_login)
                                         room.addition_user(new_user)
                                         room_to_join = self.check_for_presence_in_the_room(user_login)
-                                        print('present_user', room_to_join.name)
                                         self.send_data(f"{colored(sending_date + sending_time + '>>> ', 'cyan')}"
                                                        f"{colored(user_login, 'cyan')}"
                                                        f"{colored(' join to the chat room', 'yellow')} ("
@@ -265,6 +329,9 @@ class Server(socket.socket):
                 return
 
     def accept_sockets(self):
+        """
+        Analysis of information about the logged in user
+        """
         try:
             while True:
                 user_socket, addr = self.accept()
@@ -297,17 +364,34 @@ class Server(socket.socket):
 
 
 def user_checking(login, password):
+    """
+    check the database for the existence of such a user
+    :param login: any
+    :param password: any
+    :return:
+    """
     return check_user_in(login, password)
 
 
 def add_new_user(login, password):
+    """
+    create new user in db
+    :param login: any
+    :param password: any
+    :return: new user login
+    """
     try:
         return create_user(login, password)
     except Exception as err:
-        print('Exception error =', err)
+        print('Exception error: ', err)
 
 
 def add_new_message(user, message):
+    """
+    crate new message in db
+    :param user: author
+    :param message: text
+    """
     try:
         return insert_message(message, user)
     except orm.core.ObjectNotFound:

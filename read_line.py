@@ -5,6 +5,10 @@ HISTORY_FILENAME = 'completer.hist'
 
 
 def get_history_items():
+    """
+    Getting a history element from a list in a file
+    :return: list
+    """
     return [readline.get_history_item(i)
             for i in range(1, readline.get_current_history_length() + 1)
             ]
@@ -34,6 +38,11 @@ class HistoryCompleter(object):
 
 
 def input_ing(text=None):
+    """
+        custom input
+    :param text: optional information
+    :return: text from input field
+    """
     if os.path.exists(HISTORY_FILENAME):
         readline.read_history_file(HISTORY_FILENAME)
     else:
@@ -52,8 +61,8 @@ def input_ing(text=None):
         return False
 
 
-# Регистрация класса 'HistoryCompleter'
+# Class Registration 'HistoryCompleter'
 readline.set_completer(HistoryCompleter().complete)
 readline.set_history_length(10)
-# Регистрация клавиши `tab` для автодополнения
+# Key Registration `tab` for autocomplete
 readline.parse_and_bind('tab: complete')

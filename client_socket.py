@@ -14,6 +14,9 @@ command = PostCommands()
 
 
 class Client(socket.socket):
+    """
+        Client socket class, make client entity
+    """
     def __init__(self, argument_parser, arg_values):
         super(Client, self).__init__(socket.AF_INET, socket.SOCK_STREAM)
         self.arg_values = arg_values
@@ -24,6 +27,9 @@ class Client(socket.socket):
         self.chat_room = False
 
     def set_up(self):
+        """
+            Let's start listening to threads
+        """
         try:
             listen_thread = Thread(target=self.listen_socket)
             listen_thread.start()
@@ -38,6 +44,9 @@ class Client(socket.socket):
             print(err)
 
     def listen_socket(self):
+        """
+            Listening to streams, processing server response options
+        """
         try:
             while True:
                 data = self.recv(2048)
@@ -79,6 +88,10 @@ class Client(socket.socket):
             exit(0)
 
     def send_login_data(self, login_data=None):
+        """
+        Sending a login request
+        :param login_data:(str)
+        """
         send_data = command.ASEND + "::" + login_data
         try:
             self.send(send_data.encode("utf-8"))
@@ -90,6 +103,10 @@ class Client(socket.socket):
             self.logining()
 
     def send_data(self):
+        """
+            process query variants and form a string for transmission to the server
+
+        """
         try:
             while True:
                 user_input = input_ing()
@@ -140,15 +157,10 @@ class Client(socket.socket):
         except ValueError as err:
             print(err)
 
-    def check_connection(self):
-        try:
-            self.sendall(b'ping')
-            return True
-        except ConnectionError as err:
-            print("connection lost", err)
-            return False
-
     def logining(self):
+        """
+            login form
+        """
         try:
             self.connect((self.arg_values.ip, int(self.arg_values.port)))
             if self.arg_values.r:
@@ -167,6 +179,10 @@ class Client(socket.socket):
             print(err)
 
     def reg(self):
+        """
+            registration form
+        """
+
         print("Register please")
         new_user_login = input("Login: ")
         new_user_password = input("Password: ")
