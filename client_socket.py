@@ -115,7 +115,7 @@ class Client(socket.socket):
                         create_new_room = self.login + "::" + command.SUBSCRIBE + "::" + input_ing('input room name: ')
                         self.send(create_new_room.encode("utf-8"))
                     elif user_input == "OUT":
-                        print(colored("you are out of the app "), 'yellow')
+                        print(colored("you are out of the app ", 'yellow'))
                         self.shutdown(2)
                         self.close()
                     elif user_input == "LEAVE_ROOM":
@@ -145,7 +145,6 @@ class Client(socket.socket):
                     elif user_input == "SEND_TO":
                         input_user_name = self.login + "::" + command.PM + "::" + input_ing(
                             'user name: ') + '::' + input('text: ')
-                        # print('input_user_name', input_user_name)
                         self.send(input_user_name.encode("utf-8"))
 
                     else:
