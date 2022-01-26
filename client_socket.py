@@ -67,7 +67,8 @@ class Client(socket.socket):
 
                 elif data.decode('utf-8') == "USER_WAS_FOUND":
                     res = colored("You are entered", 'green')
-                    print(res)
+                    help_info = colored(" use HELP for usage information","yellow")
+                    print(res + help_info)
                     self.set_up()
                 elif server_command == "INVITE":
                     print(colored(user_login, "red") + server_command_value +
@@ -105,7 +106,6 @@ class Client(socket.socket):
     def send_data(self):
         """
             process query variants and form a string for transmission to the server
-
         """
         try:
             while True:

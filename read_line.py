@@ -61,8 +61,8 @@ def input_ing(text=None):
         return False
 
 
-# Class Registration 'HistoryCompleter'
+# Регистрация класса 'HistoryCompleter'
 readline.set_completer(HistoryCompleter().complete)
 readline.set_history_length(10)
-# Key Registration `tab` for autocomplete
+# Регистрация клавиши `tab` для автодополнения
 readline.parse_and_bind('tab: complete')

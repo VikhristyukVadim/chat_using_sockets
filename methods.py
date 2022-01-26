@@ -59,15 +59,20 @@ class PostCommands:
 
 command_list = {
     "request a list of commands": "..HELP",
+    "list available users": "........USERS_LIST",
     "private message": ".............SEND_TO",
     "list available rooms": "........ROOM_LIST",
-    "list available users": "........USERS_LIST",
-    "exit the application": "........OUT",
     "create new chat room": "........CREATE_ROOM",
     "leave chat room": ".............LEAVE_ROOM",
-    "join an existing room": ".......JOIN_ROOM",
     "invite new user to chat room": "INVITE_USER",
-    "remove user from chat room": "..DELETE_USER"
+    "remove user from chat room": "..DELETE_USER",
+    "join an existing room": ".......JOIN_ROOM",
+    "exit the application": "........OUT",
+
+
+
+
+
 }
 
 

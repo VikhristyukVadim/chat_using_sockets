@@ -368,7 +368,6 @@ def user_checking(login, password):
     check the database for the existence of such a user
     :param login: any
     :param password: any
-    :return:
     """
     return check_user_in(login, password)
 
