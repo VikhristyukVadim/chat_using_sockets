@@ -294,14 +294,19 @@ class Server(socket.socket):
                             self.send_data(info_message, user_login)
 
                     elif user_command == "ROOMS":
-                        room_list = ""
+                        rooms_list = ""
                         if len(self.rooms) == 0:
-                            room_list = "There are no rooms "
+                            rooms_list = "There are no rooms "
                         else:
-                            room_list = "room list: "
+                            rooms_list = colored("rooms_list (" + str(len(self.rooms)) + "): ", 'yellow')
                             for i in self.rooms:
-                                room_list += i.name + " "
-                        listened_socket.send(room_list.encode('utf-8'))
+                                condition1 = i != self.rooms[-1]
+                                condition2 = len(self.rooms) > 1
+                                print('condition= ',condition1,condition2)
+                                quote = ", " if condition1 and condition2 else ""
+                                rooms_list += i.name + quote
+                        listened_socket.send(rooms_list.encode('utf-8'))
+
                     elif user_command == "USERS":
                         users_list = ""
                         if len(self.users) == 0:
@@ -309,8 +314,17 @@ class Server(socket.socket):
                         else:
                             users_list = colored("users_list (" + str(len(self.users)) + "): ", 'yellow')
                             for i in self.users:
-                                users_list += ''.join(i.name) + ", "
+                                condition1 = i != self.users[-1]
+                                condition2 = len(self.users) > 1
+                                quote = ", " if condition1 and condition2 else ""
+                                users_list += ''.join(i.name) + quote
                         listened_socket.send(users_list.encode('utf-8'))
+
+                    elif user_command == "OUT":
+                        self.delete_log_out_user(listened_socket)
+                        out_message = colored(user_login, "blue", attrs=['underline']) + colored(" left the chat",
+                                                                                                 "yellow")
+                        self.send_data(out_message, user_login)
 
                     elif user_command == "HELP":
                         commands = show_help_command()
